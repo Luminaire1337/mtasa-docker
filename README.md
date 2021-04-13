@@ -1,5 +1,7 @@
 # Luminaire1337/mtasa-docker
 ### Unofficial MTA:SA Server Docker Image
+![Docker Pulls](https://img.shields.io/docker/pulls/luminaire/mtasa-docker)
+![Docker Stars](https://img.shields.io/docker/stars/luminaire/mtasa-docker)
 
 ## Installation
 #### Pulling image
