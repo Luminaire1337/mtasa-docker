@@ -12,7 +12,7 @@ docker pull luminaire/mtasa-docker:latest
 ## OR
 
 # Build it yourself
-docker build -t luminaire/mtasa-docker:latest https://github.com/Luminaire1337/mtasa-docker.git
+docker build -t luminaire/mtasa-docker:latest https://github.com/Luminaire1337/mtasa-docker.git#main
 ```
 #### Running image
 ```bash
