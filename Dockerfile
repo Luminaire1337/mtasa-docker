@@ -1,6 +1,7 @@
 FROM debian:buster-slim
 MAINTAINER github.com/Luminaire1337
 ENV TERM xterm-256color
+EXPOSE 22003/udp 22005/tcp 22126/udp
 
 RUN apt update \
     && apt upgrade -y \
@@ -12,24 +13,11 @@ RUN apt update \
 
 WORKDIR /src
 
-RUN mkdir -p tmp \
-    && cd tmp \
-    && wget http://linux.mtasa.com/dl/multitheftauto_linux_x64.tar.gz \
-    && tar -xf multitheftauto_linux_x64.tar.gz \
-    && wget http://linux.mtasa.com/dl/baseconfig.tar.gz \
-    && tar -xf baseconfig.tar.gz \
-    && mv baseconfig/* multitheftauto_linux_x64/mods/deathmatch \
-    && mkdir -p multitheftauto_linux_x64/mods/deathmatch/resources \
-    && cd multitheftauto_linux_x64/mods/deathmatch/resources \
-    && wget http://mirror.mtasa.com/mtasa/resources/mtasa-resources-latest.zip \
-    && unzip mtasa-resources-latest.zip \
-    && rm -rf mtasa-resources-latest.zip \
-    && cd /src \
-    && mv -v tmp/multitheftauto_linux_x64/* . \
-    && rm -rf tmp
+RUN wget http://linux.mtasa.com/dl/multitheftauto_linux_x64.tar.gz -O /tmp/mtasa.tar.gz \
+    && tar -xzf /tmp/mtasa.tar.gz \
+    && rm -rf /tmp/mtasa.tar.gz
 
-VOLUME /src/mods
-VOLUME /src/modules
+VOLUME /src/shared-config /src/shared-modules /src/shared-resources /src/shared-http-cache
 
-EXPOSE 22003/udp 22005/tcp 22126/udp
-CMD ./mta-server64
+COPY entrypoint.sh /src/entrypoint.sh
+ENTRYPOINT /src/entrypoint.sh
