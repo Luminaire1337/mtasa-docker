@@ -16,12 +16,9 @@ RUN mkdir -p tmp \
     && cd tmp \
     && wget http://linux.mtasa.com/dl/multitheftauto_linux_x64.tar.gz \
     && tar -xf multitheftauto_linux_x64.tar.gz \
-    && rm -rf multitheftauto_linux_x64.tar.gz \ 
     && wget http://linux.mtasa.com/dl/baseconfig.tar.gz \
     && tar -xf baseconfig.tar.gz \
-    && rm -rf baseconfig.tar.gz \
     && mv baseconfig/* multitheftauto_linux_x64/mods/deathmatch \
-    && rm -rf baseconfig \
     && mkdir -p multitheftauto_linux_x64/mods/deathmatch/resources \
     && cd multitheftauto_linux_x64/mods/deathmatch/resources \
     && wget http://mirror.mtasa.com/mtasa/resources/mtasa-resources-latest.zip \
