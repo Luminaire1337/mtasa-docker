@@ -17,8 +17,7 @@ if [[ "$(ls -A shared-modules)" ]]; then
 fi
 
 if ! [[ -d "${MTA_ROOT}/mods/deathmatch/resources" ]]; then
-    mkdir -p "${MTA_ROOT}/mods/deathmatch/resources"
-    ln -s /src/shared-resources "${MTA_ROOT}/mods/deathmatch/resources/[docker]"
+    ln -s /src/shared-resources "${MTA_ROOT}/mods/deathmatch/resources"
 fi
 
 if ! [[ "$(ls -A shared-resources)" ]]; then

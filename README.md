@@ -12,14 +12,14 @@ docker pull luminaire/mtasa-docker:latest
 ## OR
 
 # Build it yourself
-docker build -t luminaire/mtasa-docker:latest https://github.com/Luminaire1337/mtasa-docker.git
+docker build -t luminaire/mtasa-docker:latest https://github.com/Luminaire1337/mtasa-docker.git#main
 ```
 #### Running image
 ```bash
 docker run -it \
-	-p 22003:22003 \
-	-p 22005:22005 \
-	-p 22126:22126 \
+	-p 22003:22003/udp \
+	-p 22005:22005/tcp \
+	-p 22126:22126u/udp \
 	-d luminaire/mtasa-docker:latest
 ```
 #### Running image with docker-compose
@@ -30,7 +30,7 @@ services:
   mtasa:
     image: luminaire/mtasa-docker:latest
     container_name: mtasa
-    restart: always
+    restart: unless-stopped
     stdin_open: true
     tty: true
     volumes:
