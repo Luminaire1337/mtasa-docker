@@ -19,7 +19,7 @@ docker build -t luminaire/mtasa-docker:latest https://github.com/Luminaire1337/m
 docker run -it \
 	-p 22003:22003/udp \
 	-p 22005:22005/tcp \
-	-p 22126:22126u/udp \
+	-p 22126:22126/udp \
 	-d luminaire/mtasa-docker:latest
 ```
 #### Running image with docker-compose
