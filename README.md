@@ -31,8 +31,6 @@ services:
     image: luminaire/mtasa-docker:latest
     container_name: mtasa
     restart: unless-stopped
-    stdin_open: true
-    tty: true
     volumes:
         - "./config:/src/shared-config"
         - "./modules:/src/shared-modules"
