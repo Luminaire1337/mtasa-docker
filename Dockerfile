@@ -1,5 +1,5 @@
 FROM debian:bullseye-slim
-MAINTAINER github.com/Luminaire1337
+LABEL maintainer="github.com/Luminaire1337"
 ENV TERM=xterm-256color
 EXPOSE 22003/udp 22005/tcp 22126/udp
 
