@@ -1,39 +1,109 @@
 #!/bin/bash
-readonly MTA_ROOT="/src/multitheftauto_linux_x64"
 
-if ! [[ "$(ls -A shared-config)" ]]; then
-    echo "Downloading base config.."
+ARCH=$(uname -m)
+ARCH_TYPE=""
+BASE_URL="https://linux.multitheftauto.com/dl"
+BASE_DIR="/src"
 
-    wget -q http://linux.mtasa.com/dl/baseconfig.tar.gz -O /tmp/baseconfig.tar.gz
-    tar -xzf /tmp/baseconfig.tar.gz -C /tmp
-    mv /tmp/baseconfig/* shared-config
-    rm -rf /tmp/baseconfig /tmp/baseconfig.tar.gz
-fi
+get_architecture() {
+    case "$ARCH" in
+        "i386")
+            ARCH_TYPE=""
+            ;;
+        "x86_64")
+            ARCH_TYPE="_x64"
+            ;;
+        "aarch64")
+            ARCH_TYPE="_arm64"
+            ;;
+        *)
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+            ;;
+    esac
+}
 
-cp -r shared-config/* "${MTA_ROOT}/mods/deathmatch"
+download_server() {
+    echo "Downloading MTA:SA Server.."
+    
+    wget -q "${BASE_URL}/multitheftauto_linux${ARCH_TYPE}.tar.gz" -O "multitheftauto_linux${ARCH_TYPE}.tar.gz" \
+    && tar -xzf "multitheftauto_linux${ARCH_TYPE}.tar.gz" \
+    && rm -f "multitheftauto_linux${ARCH_TYPE}.tar.gz" \
+    || { echo "Failed to download or extract MTA:SA Server"; exit 1; }
+}
 
-if [[ "$(ls -A shared-modules)" ]]; then
-    cp -r shared-modules/* "${MTA_ROOT}/x64/modules"
-fi
+check_config() {
+    echo "Checking config.."
 
-if ! [[ -d "${MTA_ROOT}/mods/deathmatch/resources" ]]; then
-    ln -s /src/shared-resources "${MTA_ROOT}/mods/deathmatch/resources"
-fi
+    if [ ! "$(ls -A shared-config)" ]; then
+        echo "Could not find base config, downloading.."
 
-if ! [[ "$(ls -A shared-resources)" ]]; then
-    echo "Downloading default resources.."
+        wget -q "${BASE_URL}/baseconfig.tar.gz" -O /tmp/baseconfig.tar.gz \
+        && tar -xzf /tmp/baseconfig.tar.gz -C /tmp \
+        && mv /tmp/baseconfig/* shared-config \
+        && rm -rf /tmp/baseconfig /tmp/baseconfig.tar.gz \
+        || { echo "Failed to download or extract baseconfig"; exit 1; }
+    fi
 
-    wget -q http://mirror.mtasa.com/mtasa/resources/mtasa-resources-latest.zip -O /tmp/mtasa-resources.zip
-    unzip -qo /tmp/mtasa-resources.zip -d shared-resources
-    rm -rf /tmp/mtasa-resources.zip
-fi
+    cp -r shared-config/* "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch"
+}
 
-## For external web server
-# https://wiki.multitheftauto.com/wiki/Installing_and_Configuring_Nginx_as_an_External_Web_Server
-if ! [[ -d "${MTA_ROOT}/mods/deathmatch/resource-cache" ]]; then
-    mkdir -p "${MTA_ROOT}/mods/deathmatch/resource-cache"
-    ln -s /src/shared-http-cache "${MTA_ROOT}/mods/deathmatch/resource-cache/http-client-files"
-fi
+link_modules() {
+    echo "Linking modules.."
 
-echo "Starting MTA:SA Server.."
-"${MTA_ROOT}/mta-server64"
+    if [ -d "shared-modules" ] && [ "$(ls -A shared-modules)" ]; then
+        case "$ARCH" in
+            "i386")
+                rm -rf "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/modules"
+                mkdir -p "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/modules"
+                cp -r shared-modules/* "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/modules"
+                ;;
+            "x86_64")
+                rm -rf "multitheftauto_linux${ARCH_TYPE}/x64/modules"
+                mkdir -p "multitheftauto_linux${ARCH_TYPE}/x64/modules"
+                cp -r shared-modules/* "multitheftauto_linux${ARCH_TYPE}/x64/modules"
+                ;;
+        esac
+    fi
+}
+
+install_resources() {
+    if [ ! -L "${BASE_DIR}/multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/resources" ]; then
+        ln -s "${BASE_DIR}/shared-resources" "${BASE_DIR}/multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/resources"
+    fi
+
+    if [[ "${INSTALL_DEFAULT_RESOURCES,,}" != "false" ]]; then
+        echo "INSTALL_DEFAULT_RESOURCES was not set to false, installing resources.."
+
+        if [ ! "$(ls -A shared-resources)" ]; then
+            echo "Downloading default resources.."
+
+            wget -q "http://mirror.mtasa.com/mtasa/resources/mtasa-resources-latest.zip" -O /tmp/mtasa-resources.zip \
+            && unzip -qo /tmp/mtasa-resources.zip -d shared-resources \
+            && rm -f /tmp/mtasa-resources.zip \
+            || { echo "Failed to download or unzip resources"; exit 1; }
+        fi
+    fi
+}
+
+setup_http_cache() {
+    echo "Setting up HTTP cache.."
+
+    mkdir -p "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/resource-cache"
+
+    if [ ! -L "${BASE_DIR}/multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/resource-cache/http-client-files" ]; then
+        ln -s "${BASE_DIR}/shared-http-cache" "${BASE_DIR}/multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/resource-cache/http-client-files"
+    fi
+}
+
+main() {
+    get_architecture
+    download_server
+    check_config
+    link_modules
+    install_resources
+    setup_http_cache
+}
+
+main
+exec "$@"
