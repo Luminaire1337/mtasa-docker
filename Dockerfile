@@ -1,25 +1,18 @@
 FROM debian:bullseye-slim
-MAINTAINER github.com/Luminaire1337
-ENV TERM=xterm-256color
-EXPOSE 22003/udp 22005/tcp 22126/udp
 
-RUN apt-get update \
-	&& apt-get -y upgrade \
-	&& apt-get -y install \
-    	libreadline8 \
-    	libncursesw5 \
-		unzip \
-    	wget \
+LABEL org.opencontainers.image.source=https://github.com/Luminaire1337/mtasa-docker
+LABEL org.opencontainers.image.description="Unofficial MTA:SA Server Docker Image"
+LABEL org.opencontainers.image.licenses=MIT
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt update && apt -y upgrade \
+	&& apt -y install libreadline8 libncursesw5 unzip wget \
 	&& rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
-
-RUN wget -q http://linux.mtasa.com/dl/multitheftauto_linux_x64.tar.gz -O /tmp/mtasa.tar.gz \
-    && tar -xzf /tmp/mtasa.tar.gz \
-    && rm -rf /tmp/mtasa.tar.gz
-
 VOLUME /src/shared-config /src/shared-modules /src/shared-resources /src/shared-http-cache
+EXPOSE 22003/udp 22005/tcp 22126/udp
 
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
-ENTRYPOINT /src/entrypoint.sh
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
