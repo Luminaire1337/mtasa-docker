@@ -6,7 +6,7 @@ LABEL org.opencontainers.image.licenses=MIT
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt -y upgrade \
-	&& apt -y install libreadline8 libncursesw5 unzip wget \
+	&& apt -y install libreadline8 libncursesw6 unzip wget \
 	&& rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
