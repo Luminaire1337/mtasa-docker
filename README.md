@@ -41,7 +41,7 @@ You can also use Docker Compose to run the container. Here's an example `docker-
 ```yaml
 services:
   mtasa:
-    image: ghcr.io/luminaire1337/mtasa-docker:latest
+    build: .
     container_name: mtasa
     restart: unless-stopped
     volumes:

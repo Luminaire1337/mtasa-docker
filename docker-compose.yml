@@ -1,0 +1,29 @@
+services:
+  mtasa:
+    build: .
+    container_name: mtasa
+    restart: unless-stopped
+    volumes:
+      - ./config:/src/shared-config
+      - ./modules:/src/shared-modules
+      - ./resources:/src/shared-resources
+      - ./http-cache:/src/shared-http-cache
+    ports:
+      - "22003:22003/udp"
+      - "22005:22005/tcp"
+      - "22126:22126/udp"
+    environment:
+      - INSTALL_DEFAULT_RESOURCES=false
+
+  # Optional: HTTP cache server
+  # https://wiki.multitheftauto.com/wiki/Installing_and_Configuring_Nginx_as_an_External_Web_Server
+  http-cache:
+    image: nginx:alpine
+    container_name: mtasa-http-cache
+    restart: unless-stopped
+    volumes:
+      - ./http-cache:/usr/share/nginx/html
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "20080:20080/tcp"
