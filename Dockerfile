@@ -4,19 +4,49 @@ LABEL org.opencontainers.image.source=https://github.com/Luminaire1337/mtasa-doc
 LABEL org.opencontainers.image.description="Unofficial MTA:SA Server Docker Image"
 LABEL org.opencontainers.image.licenses=MIT
 
+# Install dependencies
+# Use noninteractive mode to avoid prompts during package installation
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt -y upgrade \
 	&& apt -y install libreadline8 libncursesw6 unzip wget \
 	&& rm -rf /var/lib/apt/lists/*
 
+# Create a group and user with the specified IDs
+ARG USER_NAME=mtasa
+ARG USER_ID=1000
+ARG GROUP_NAME=mtasa
+ARG GROUP_ID=1000
+RUN groupadd -g ${GROUP_ID} ${GROUP_NAME} \
+	&& useradd -u ${USER_ID} -g ${GROUP_NAME} -m -d /home/${USER_NAME} -s /usr/sbin/nologin ${USER_NAME}
+
+# Set the working directory
 WORKDIR /src
-VOLUME /src/shared-config /src/shared-modules /src/shared-resources /src/shared-http-cache
 
-COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+# Create directories for volumes and set permissions
+RUN mkdir -p /src/shared-config \
+	&& mkdir -p /src/shared-modules \
+	&& mkdir -p /src/shared-resources \
+	&& mkdir -p /src/shared-http-cache \
+	&& chown -R ${USER_NAME}:${GROUP_NAME} /src \
+	&& chmod -R 755 /src
 
-COPY ./run.sh /run.sh
-RUN chmod +x /run.sh
+# Copy over entrypoint and run scripts and change their permissions
+COPY ./entrypoint.sh /src/entrypoint.sh
+COPY ./run.sh /src/run.sh
+RUN chmod +x /src/entrypoint.sh \
+	&& chmod +x /src/run.sh
+
+# Change to the non-root user
+USER ${USER_NAME}
+
+# Expose ports
 EXPOSE 22003/udp 22005/tcp 22126/udp
-CMD ["/run.sh"]
+
+# Expose volumes for shared data
+VOLUME ["/src/shared-config", "/src/shared-modules", "/src/shared-resources", "/src/shared-http-cache"]
+
+# Set the entrypoint
+ENTRYPOINT ["/src/entrypoint.sh"]
+
+# When that's done, run the server
+CMD ["/src/run.sh"]

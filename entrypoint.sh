@@ -3,7 +3,8 @@
 ARCH=$(uname -m)
 ARCH_TYPE=""
 BASE_URL="https://linux.multitheftauto.com/dl"
-BASE_DIR="/src"
+RESOURCES_URL="https://mirror.multitheftauto.com/mtasa/resources/mtasa-resources-latest.zip"
+BASE_DIR=$PWD
 
 get_architecture() {
     case "$ARCH" in
@@ -78,7 +79,7 @@ install_resources() {
         if [ ! "$(ls -A shared-resources)" ]; then
             echo "Downloading default resources.."
 
-            wget -q "http://mirror.mtasa.com/mtasa/resources/mtasa-resources-latest.zip" -O /tmp/mtasa-resources.zip \
+            wget -q $RESOURCES_URL -O /tmp/mtasa-resources.zip \
             && unzip -qo /tmp/mtasa-resources.zip -d shared-resources \
             && rm -f /tmp/mtasa-resources.zip \
             || { echo "Failed to download or unzip resources"; exit 1; }
