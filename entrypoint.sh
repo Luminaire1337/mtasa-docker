@@ -46,7 +46,14 @@ check_config() {
         || { echo "Failed to download or extract baseconfig"; exit 1; }
     fi
 
-    cp -r shared-config/* "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch"
+    for file in shared-config/*; do
+        if [ -f "$file" ]; then
+            fileName=$(basename "$file")
+            if [ ! -L "${BASE_DIR}/multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${fileName}" ]; then
+                ln -s "${BASE_DIR}/shared-config/${fileName}" "${BASE_DIR}/multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${fileName}"
+            fi
+        fi
+    done
 }
 
 link_modules() {
