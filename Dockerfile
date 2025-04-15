@@ -11,6 +11,13 @@ RUN apt update && apt -y upgrade \
 	&& apt -y install libreadline-dev libncurses-dev libmysqlclient-dev unzip wget \
 	&& rm -rf /var/lib/apt/lists/*
 
+# Check if host is running on amd64 arch, if it is - download libssl1.1 library
+RUN if [ "$(uname -m)" = "x86_64" ]; then \
+		wget -O /tmp/libssl1.1.deb http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb && \
+		dpkg -i /tmp/libssl1.1.deb && \
+		rm /tmp/libssl1.1.deb; \
+	fi
+
 # Set default permissions
 ARG DEFAULT_PERMISSIONS=755
 
