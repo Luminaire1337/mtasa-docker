@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM ubuntu:noble
 
 LABEL org.opencontainers.image.source=https://github.com/Luminaire1337/mtasa-docker
 LABEL org.opencontainers.image.description="Unofficial MTA:SA Server Docker Image"
@@ -8,19 +8,15 @@ LABEL org.opencontainers.image.licenses=MIT
 # Use noninteractive mode to avoid prompts during package installation
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt -y upgrade \
-	&& apt -y install libreadline8 libncursesw6 unzip wget \
+	&& apt -y install libreadline-dev libncurses-dev libmysqlclient-dev unzip wget \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Set default permissions
 ARG DEFAULT_PERMISSIONS=755
 
-# Create a group and user with the specified IDs
-ARG USER_NAME=mtasa
-ARG USER_ID=1000
+# Use built-in user to Ubuntu images
+ARG USER_NAME=ubuntu
 ARG GROUP_NAME=${USER_NAME}
-ARG GROUP_ID=${USER_ID}
-RUN groupadd -g ${GROUP_ID} ${GROUP_NAME} \
-	&& useradd -u ${USER_ID} -g ${GROUP_NAME} -m -d /home/${USER_NAME} -s /usr/sbin/nologin ${USER_NAME}
 
 # Set the working directory
 WORKDIR /src
