@@ -64,6 +64,11 @@ link_modules() {
                 mkdir -p "multitheftauto_linux${ARCH_TYPE}/x64/modules"
                 cp -r shared-modules/* "multitheftauto_linux${ARCH_TYPE}/x64/modules"
                 ;;
+            "aarch64")
+                rm -rf "multitheftauto_linux${ARCH_TYPE}/arm64/modules"
+                mkdir -p "multitheftauto_linux${ARCH_TYPE}/arm64/modules"
+                cp -r shared-modules/* "multitheftauto_linux${ARCH_TYPE}/arm64/modules"
+                ;;
         esac
     fi
 }
