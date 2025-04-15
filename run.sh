@@ -6,9 +6,6 @@ EXECUTABLE_NAME=""
 
 get_architecture() {
     case "$ARCH" in
-        "i386")
-            ARCH_TYPE=""
-            ;;
         "x86_64")
             ARCH_TYPE="_x64"
             ;;
@@ -24,9 +21,6 @@ get_architecture() {
 
 get_executable_name() {
     case "$ARCH" in
-        "i386")
-            EXECUTABLE_NAME="mta-server"
-            ;;
         "x86_64")
             EXECUTABLE_NAME="mta-server64"
             ;;

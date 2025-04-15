@@ -2,7 +2,7 @@
 
 ### Unofficial MTA:SA Server Docker Image
 
-This repository provides a Docker container for Multi Theft Auto: San Andreas (MTA:SA) with support for multiple platforms, including `amd64`, `i386`, and `arm64`.
+This repository provides a Docker container for Multi Theft Auto: San Andreas (MTA:SA) with support for multiple platforms, including `amd64` and `arm64`.
 
 ## Getting Started
 
@@ -83,7 +83,6 @@ Customize the container by setting these environment variables:
 This image supports multiple platforms:
 
 - `amd64` (64-bit x86 architecture)
-- `i386` (32-bit x86 architecture)
 - `arm64` (64-bit ARM architecture)
 
 ## License

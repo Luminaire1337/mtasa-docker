@@ -8,9 +8,6 @@ BASE_DIR=$PWD
 
 get_architecture() {
     case "$ARCH" in
-        "i386")
-            ARCH_TYPE=""
-            ;;
         "x86_64")
             ARCH_TYPE="_x64"
             ;;
@@ -61,11 +58,6 @@ link_modules() {
 
     if [ -d "shared-modules" ] && [ "$(ls -A shared-modules)" ]; then
         case "$ARCH" in
-            "i386")
-                rm -rf "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/modules"
-                mkdir -p "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/modules"
-                cp -r shared-modules/* "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/modules"
-                ;;
             "x86_64")
                 rm -rf "multitheftauto_linux${ARCH_TYPE}/x64/modules"
                 mkdir -p "multitheftauto_linux${ARCH_TYPE}/x64/modules"
