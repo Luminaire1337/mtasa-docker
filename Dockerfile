@@ -1,4 +1,4 @@
-FROM ubuntu:noble
+FROM ubuntu:24.04
 
 LABEL org.opencontainers.image.source=https://github.com/Luminaire1337/mtasa-docker
 LABEL org.opencontainers.image.description="Unofficial MTA:SA Server Docker Image"
