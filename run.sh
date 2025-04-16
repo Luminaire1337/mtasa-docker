@@ -78,6 +78,10 @@ main() {
     wait $!
 }
 
-trap save_config SIGTERM SIGINT EXIT
-trap save_databases SIGTERM SIGINT EXIT
+save_data() {
+    save_config
+    save_databases
+}
+
+trap save_data SIGTERM SIGINT EXIT
 main
