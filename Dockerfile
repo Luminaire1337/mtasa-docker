@@ -13,7 +13,7 @@ RUN apt update && apt -y upgrade \
 
 # Check if host is running on amd64 arch, if it is - download libssl1.1 library
 RUN if [ "$(uname -m)" = "x86_64" ]; then \
-		wget -O /tmp/libssl1.1.deb http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb && \
+		wget -O /tmp/libssl1.1.deb https://launchpad.net/ubuntu/+archive/primary/+files/libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb && \
 		dpkg -i /tmp/libssl1.1.deb && \
 		rm /tmp/libssl1.1.deb; \
 	fi
