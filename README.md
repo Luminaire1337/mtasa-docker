@@ -49,6 +49,7 @@ services:
       - ./modules:/src/shared-modules
       - ./resources:/src/shared-resources
       - ./http-cache:/src/shared-http-cache
+      - ./databases:/src/shared-databases
     ports:
       - "22003:22003/udp"
       - "22005:22005/tcp"
