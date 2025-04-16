@@ -47,10 +47,7 @@ check_config() {
     for file in shared-config/*; do
         if [ -f "${file}" ]; then
             fileName=$(basename "$file")
-            if [ -f "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${fileName}" ]; then
-                rm -f "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${fileName}"
-            fi
-            cp "${file}" "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${fileName}"
+            cp -f "${file}" "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${fileName}"
         fi
     done
 }
@@ -103,6 +100,24 @@ setup_http_cache() {
     fi
 }
 
+rollback_databases() {
+    echo "Rolling back databases.."
+
+    # Check if internal.db and registry.db files exist
+    for file in internal.db registry.db; do
+        if [ -f "shared-config/$file" ]; then
+            cp -f "shared-config/$file" "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/$file"
+        fi
+    done
+
+    # Rollback 'databases' directory
+    if [ -d "shared-databases/databases" ] && [ "$(ls -A shared-databases/databases)" ]; then
+        rm -rf "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/databases"
+        mkdir -p "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/databases"
+        cp -r shared-databases/databases/* "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/databases"
+    fi
+}
+
 main() {
     get_architecture
     download_server
@@ -110,6 +125,7 @@ main() {
     link_modules
     install_resources
     setup_http_cache
+    rollback_databases
 }
 
 main

@@ -33,6 +33,7 @@ RUN mkdir -p /src/shared-config \
 	&& mkdir -p /src/shared-modules \
 	&& mkdir -p /src/shared-resources \
 	&& mkdir -p /src/shared-http-cache \
+	&& mkdir -p /src/shared-databases \
 	&& chown -R ${USER_NAME}:${GROUP_NAME} /src \
 	&& chmod -R ${DEFAULT_PERMISSIONS} /src
 
@@ -47,7 +48,7 @@ USER ${USER_NAME}
 EXPOSE 22003/udp 22005/tcp 22126/udp
 
 # Expose volumes for shared data
-VOLUME ["/src/shared-config", "/src/shared-modules", "/src/shared-resources", "/src/shared-http-cache"]
+VOLUME ["/src/shared-config", "/src/shared-modules", "/src/shared-resources", "/src/shared-http-cache", "/src/shared-databases"]
 
 # Set the entrypoint
 ENTRYPOINT ["/src/entrypoint.sh"]

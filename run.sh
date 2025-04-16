@@ -49,6 +49,26 @@ save_config() {
     done
 }
 
+save_databases() {
+    echo "Saving databases.."
+
+    if [ ! -d "shared-databases" ]; then
+        mkdir -p shared-databases
+    fi
+
+    # Save internal.db and registry.db to shared-databases
+    for file in internal.db registry.db; do
+        if [ -f "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${file}" ]; then
+            cp -f "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${file}" shared-databases/
+        fi
+    done
+
+    # Save 'databases' directory to shared-databases
+    if [ -d "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/databases" ]; then
+        cp -rf "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/databases" shared-databases/
+    fi
+}
+
 main() {
     get_architecture
     get_executable_name
@@ -59,4 +79,5 @@ main() {
 }
 
 trap save_config SIGTERM SIGINT EXIT
+trap save_databases SIGTERM SIGINT EXIT
 main
