@@ -2,7 +2,12 @@
 
 ARCH=$(uname -m)
 ARCH_TYPE=""
-BASE_URL="https://linux.multitheftauto.com/dl"
+if [[ "${INSTALL_NIGHTLY_BUILD,,}" == "true" ]]; then
+    BASE_URL="https://nightly.multitheftauto.com"
+    echo "INSTALL_NIGHTLY_BUILD is set to true, using nightly build.."
+else
+    BASE_URL="https://linux.multitheftauto.com/dl"
+fi
 RESOURCES_URL="https://mirror.multitheftauto.com/mtasa/resources/mtasa-resources-latest.zip"
 BASE_DIR=$PWD
 
@@ -77,7 +82,7 @@ install_resources() {
     fi
 
     if [[ "${INSTALL_DEFAULT_RESOURCES,,}" != "false" ]]; then
-        echo "INSTALL_DEFAULT_RESOURCES was not set to false, installing resources.."
+        echo "INSTALL_DEFAULT_RESOURCES is not set to false, installing resources.."
 
         if [ ! "$(ls -A shared-resources)" ]; then
             echo "Downloading default resources.."
