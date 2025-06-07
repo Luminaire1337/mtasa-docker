@@ -14,6 +14,12 @@ You can pull the pre-built image directly from GitHub Container Registry:
 docker pull ghcr.io/luminaire1337/mtasa-docker:latest
 ```
 
+Or from Docker Hub:
+
+```bash
+docker pull luminaire/mtasa-docker:latest
+```
+
 Alternatively, build it yourself from the repository:
 
 ```bash
