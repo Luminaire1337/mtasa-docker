@@ -72,16 +72,37 @@ save_databases() {
 main() {
     get_architecture
     get_executable_name
+
+    # 10 seconds by default to wait for the server to exit
+    SERVER_STOP_DELAY="${SERVER_STOP_DELAY:-10}"
+
+    graceful_shutdown() {
+        # Send shutdown command to server and wait
+        echo "shutdown" > /proc/$$/fd/0
+        echo "Waiting for server to shutdown..."
+        sleep "$SERVER_STOP_DELAY"
+        save_data
+        exit 0
+    }
+    
+    # Trap on `docker stop` for example
+    trap graceful_shutdown SIGTERM SIGINT
     
     echo "Starting MTA:SA Server.."
-    "multitheftauto_linux${ARCH_TYPE}/${EXECUTABLE_NAME}" -t -n -u &
-    wait $!
+    
+    # Start server in foreground with STDIN/TTY preserved
+    stdbuf -oL "multitheftauto_linux${ARCH_TYPE}/${EXECUTABLE_NAME}" -t -n -u
+    SERVER_EXIT_CODE=$?
+
+    save_data
+
+    exit $SERVER_EXIT_CODE
 }
+
 
 save_data() {
     save_config
     save_databases
 }
 
-trap save_data SIGTERM SIGINT EXIT
 main
