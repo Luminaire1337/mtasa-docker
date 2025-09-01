@@ -54,7 +54,7 @@ jobs:
         with:
           images: |
             ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME_GHCR }}
-            ${{ env.REGISTRY_DOCKERHUB }}/${{ env.IMAGE_NAME_DOCKERHUB }}
+            name=${{ env.REGISTRY_DOCKERHUB }}/${{ env.IMAGE_NAME_DOCKERHUB }},enable=${{ github.event_name != 'pull_request' }}
 
       - name: Build and push multi-platform image
         uses: docker/build-push-action@v6
