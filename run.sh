@@ -3,6 +3,7 @@
 ARCH=$(uname -m)
 ARCH_TYPE=""
 EXECUTABLE_NAME=""
+PIPE_FILE="/tmp/mta_input_$$"
 
 get_architecture() {
     case "$ARCH" in
@@ -34,6 +35,14 @@ get_executable_name() {
     esac
 }
 
+create_pipe() {
+    [ -e "$PIPE_FILE" ] && rm -f "$PIPE_FILE"
+    mkfifo "$PIPE_FILE" || {
+        echo "Failed to create named pipe: $PIPE_FILE"
+        exit 1
+    }
+}
+
 save_databases() {
     echo "Saving databases.."
 
@@ -58,32 +67,89 @@ main() {
     get_architecture
     get_executable_name
 
-    # 10 seconds by default to wait for the server to exit
     SERVER_STOP_DELAY="${SERVER_STOP_DELAY:-10}"
+    create_pipe
 
     graceful_shutdown() {
-        # Send shutdown command to server and wait
-        echo "shutdown" > /proc/$$/fd/0
-        echo "Waiting for server to shutdown..."
-        sleep "$SERVER_STOP_DELAY"
-        save_data
+        echo "Shutting down..."
+
+        # Send shutdown command to server via pipe
+        echo "shutdown" >&3 2>/dev/null || true
+
+        # Wait for server to exit gracefully (max $SERVER_STOP_DELAY seconds)
+        local elapsed=0
+        while [ $elapsed -lt $SERVER_STOP_DELAY ] && kill -0 "$SERVER_PID" 2>/dev/null; do
+            sleep 1
+            elapsed=$((elapsed + 1))
+        done
+
+        # Force kill server if still running
+        if [ -n "$SERVER_PID" ] && kill -0 "$SERVER_PID" 2>/dev/null; then
+            kill -TERM "$SERVER_PID" 2>/dev/null || true
+            sleep 1
+            kill -KILL "$SERVER_PID" 2>/dev/null || true
+        fi
+
+        # Clean up pipe
+        exec 3>&- 2>/dev/null || true
+        [ -p "$PIPE_FILE" ] && rm -f "$PIPE_FILE"
+
+        save_databases
         exit 0
     }
-    
-    # Trap on `docker stop` for example
+
     trap graceful_shutdown SIGTERM SIGINT
-    
+
     echo "Starting MTA:SA Server.."
-    
-    # Start server in foreground with STDIN/TTY preserved
-    stdbuf -oL "multitheftauto_linux${ARCH_TYPE}/${EXECUTABLE_NAME}" -t -n -u
+
+    # Check if executable exists
+    if [ ! -f "multitheftauto_linux${ARCH_TYPE}/${EXECUTABLE_NAME}" ]; then
+        echo "ERROR: Executable not found: multitheftauto_linux${ARCH_TYPE}/${EXECUTABLE_NAME}"
+        exit 1
+    fi
+
+    # Use a minimal pipe keeper to prevent blocking (will be killed immediately)
+    (exec 3>"$PIPE_FILE"; sleep 1) &
+    PIPE_KEEPER_PID=$!
+
+    # Start server with pipe input (won't block because pipe has a writer)
+    stdbuf -oL "multitheftauto_linux${ARCH_TYPE}/${EXECUTABLE_NAME}" -t -n -u < "$PIPE_FILE" &
+    SERVER_PID=$!
+
+    # Kill the temporary pipe keeper and open our own connection
+    kill "$PIPE_KEEPER_PID" 2>/dev/null || true
+    exec 3>"$PIPE_FILE"
+
+    # Verify server started
+    sleep 1
+    if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+        echo "ERROR: Server process died immediately"
+        exit 1
+    fi
+
+
+    # Interactive command loop
+    while kill -0 "$SERVER_PID" 2>/dev/null; do
+        if read -r -t 1 line 2>/dev/null; then
+            if [ "$line" = "shutdown" ] || [ "$line" = "quit" ] || [ "$line" = "exit" ]; then
+                echo "$line" >&3 2>/dev/null || true
+                break
+            else
+                echo "$line" >&3 2>/dev/null || true
+            fi
+        fi
+    done
+
+    wait "$SERVER_PID"
     SERVER_EXIT_CODE=$?
 
-    save_data
+    # Clean up
+    exec 3>&- 2>/dev/null || true
+    [ -p "$PIPE_FILE" ] && rm -f "$PIPE_FILE"
 
+    save_databases
     exit $SERVER_EXIT_CODE
 }
-
 
 save_data() {
     save_databases
