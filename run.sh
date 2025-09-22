@@ -94,7 +94,7 @@ main() {
         exec 3>&- 2>/dev/null || true
         [ -p "$PIPE_FILE" ] && rm -f "$PIPE_FILE"
 
-        save_databases
+        save_data
         exit 0
     }
 
@@ -147,7 +147,7 @@ main() {
     exec 3>&- 2>/dev/null || true
     [ -p "$PIPE_FILE" ] && rm -f "$PIPE_FILE"
 
-    save_databases
+    save_data
     exit $SERVER_EXIT_CODE
 }
 
