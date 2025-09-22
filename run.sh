@@ -34,21 +34,6 @@ get_executable_name() {
     esac
 }
 
-save_config() {
-    echo "Saving config files.."
-
-    if [ ! -d "shared-config" ]; then
-        mkdir -p shared-config
-    fi
-
-    # Save server config files to shared-config
-    for file in acl.xml mtaserver.conf vehiclecolors.conf server-id.keys banlist.xml settings.xml; do
-        if [ -f "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${file}" ]; then
-            cp -f "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${file}" shared-config/
-        fi
-    done
-}
-
 save_databases() {
     echo "Saving databases.."
 
@@ -101,7 +86,6 @@ main() {
 
 
 save_data() {
-    save_config
     save_databases
 }
 

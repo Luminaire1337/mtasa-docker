@@ -48,11 +48,12 @@ check_config() {
         || { echo "Failed to download or extract baseconfig"; exit 1; }
     fi
 
-    # Replace server config files with the ones in shared-config
+    # Link server config files with the ones in shared-config
     for file in shared-config/*; do
         if [ -f "${file}" ]; then
             fileName=$(basename "$file")
-            cp -f "${file}" "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${fileName}"
+            rm -f "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${fileName}"
+            ln -s "${BASE_DIR}/shared-config/${fileName}" "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${fileName}"
         fi
     done
 }
