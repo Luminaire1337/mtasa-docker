@@ -8,7 +8,7 @@ LABEL org.opencontainers.image.licenses=MIT
 # Use noninteractive mode to avoid prompts during package installation
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt -y upgrade \
-	&& apt -y install libreadline-dev libncurses-dev libmysqlclient-dev unzip wget \
+	&& apt -y install libreadline-dev libncurses-dev libmysqlclient-dev unzip wget netcat-openbsd \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Download libssl1.1 library for different architectures
@@ -54,6 +54,10 @@ EXPOSE 22003/udp 22005/tcp 22126/udp
 
 # Expose volumes for shared data
 VOLUME ["/src/shared-config", "/src/shared-modules", "/src/shared-resources", "/src/shared-http-cache", "/src/shared-databases"]
+
+# Add healtcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+	CMD nc -z -u 127.0.0.1 22003 || exit 1
 
 # Set the entrypoint
 ENTRYPOINT ["/src/entrypoint.sh"]

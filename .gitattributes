@@ -1,0 +1,2 @@
+# Windows CRLF => Linux LF
+*.sh text eol=lf
