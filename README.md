@@ -81,10 +81,9 @@ services:
 
 Customize the container by setting these environment variables:
 
-|           Variable            | Default Value |                       Comment                        |
-| :---------------------------: | :-----------: | :--------------------------------------------------: |
-| **INSTALL_DEFAULT_RESOURCES** |     true      | Downloads default resources from the MTA:SA mirror.  |
-|   **INSTALL_NIGHTLY_BUILD**   |     false     | Downloads the latest nightly build of MTA:SA server. |
+|           Variable            | Default Value |                       Comment                       |
+| :---------------------------: | :-----------: | :-------------------------------------------------: |
+| **INSTALL_DEFAULT_RESOURCES** |     true      | Downloads default resources from the MTA:SA mirror. |
 
 ### Platform Support Notice
 
