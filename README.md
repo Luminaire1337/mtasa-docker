@@ -95,4 +95,4 @@ This image supports multiple platforms:
 
 ## License
 
-The Docker image [ghcr.io/luminaire1337/mtasa-docker](https://github.com/Luminaire1337/mtasa-docker) is licensed under the [MIT License](https://github.com/Luminaire1337/mtasa-docker/blob/master/LICENSE).
+The Docker image [ghcr.io/luminaire1337/mtasa-docker](https://github.com/Luminaire1337/mtasa-docker) is licensed under the [GNU GPL v3.0 License](https://github.com/Luminaire1337/mtasa-docker/blob/master/LICENSE).

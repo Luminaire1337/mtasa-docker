@@ -2,7 +2,7 @@ FROM ubuntu:24.04
 
 LABEL org.opencontainers.image.source=https://github.com/Luminaire1337/mtasa-docker
 LABEL org.opencontainers.image.description="Unofficial MTA:SA Server Docker Image"
-LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.licenses=GPL-3.0-only
 
 # Install dependencies
 # Use noninteractive mode to avoid prompts during package installation
