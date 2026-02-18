@@ -1,4 +1,4 @@
-name: MTA:SA Update Check
+name: MTA:SA Server version check
 
 on:
   schedule:
@@ -65,7 +65,7 @@ jobs:
         if: inputs.force || steps.check.outputs.exists == 'false'
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push MTA:SA image
+      - name: Build and push MTA:SA Server image
         if: inputs.force || steps.check.outputs.exists == 'false'
         uses: docker/build-push-action@v6
         with:
