@@ -1,23 +1,7 @@
 #!/bin/bash
 
 ARCH=$(uname -m)
-ARCH_TYPE=""
 EXECUTABLE_NAME=""
-
-get_architecture() {
-    case "$ARCH" in
-        "x86_64")
-            ARCH_TYPE="_x64"
-            ;;
-        "aarch64")
-            ARCH_TYPE="_arm64"
-            ;;
-        *)
-            echo "Unsupported architecture: $ARCH"
-            exit 1
-            ;;
-    esac
-}
 
 get_executable_name() {
     case "$ARCH" in
@@ -43,8 +27,8 @@ save_config() {
 
     # Save server config files to shared-config
     for file in acl.xml mtaserver.conf vehiclecolors.conf server-id.keys banlist.xml settings.xml; do
-        if [ -f "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${file}" ]; then
-            cp -f "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${file}" shared-config/
+        if [ -f "server/mods/deathmatch/${file}" ]; then
+            cp -f "server/mods/deathmatch/${file}" shared-config/
         fi
     done
 }
@@ -58,23 +42,22 @@ save_databases() {
 
     # Save internal.db and registry.db to shared-databases
     for file in internal.db registry.db; do
-        if [ -f "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${file}" ]; then
-            cp -f "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${file}" shared-databases/
+        if [ -f "server/mods/deathmatch/${file}" ]; then
+            cp -f "server/mods/deathmatch/${file}" shared-databases/
         fi
     done
 
-    # Save 'databases' directory to shared-databases
-    if [ -d "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/databases" ]; then
-        cp -rf "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/databases" shared-databases/
+    # Save "databases" directory to shared-databases
+    if [ -d "server/mods/deathmatch/databases" ]; then
+        cp -rf "server/mods/deathmatch/databases" shared-databases/
     fi
 }
 
 main() {
-    get_architecture
     get_executable_name
     
     echo "Starting MTA:SA Server.."
-    "multitheftauto_linux${ARCH_TYPE}/${EXECUTABLE_NAME}" -t -n -u &
+    "server/${EXECUTABLE_NAME}" -t -n -u &
     wait $!
 }
 

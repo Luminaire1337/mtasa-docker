@@ -1,39 +1,7 @@
 #!/bin/bash
-
-ARCH=$(uname -m)
-ARCH_TYPE=""
-if [[ "${INSTALL_NIGHTLY_BUILD,,}" == "true" ]]; then
-    BASE_URL="https://nightly.multitheftauto.com"
-    echo "INSTALL_NIGHTLY_BUILD is set to true, using nightly build.."
-else
-    BASE_URL="https://linux.multitheftauto.com/dl"
-fi
+BASE_URL="https://linux.multitheftauto.com/dl"
 RESOURCES_URL="https://mirror.multitheftauto.com/mtasa/resources/mtasa-resources-latest.zip"
 BASE_DIR=$PWD
-
-get_architecture() {
-    case "$ARCH" in
-        "x86_64")
-            ARCH_TYPE="_x64"
-            ;;
-        "aarch64")
-            ARCH_TYPE="_arm64"
-            ;;
-        *)
-            echo "Unsupported architecture: $ARCH"
-            exit 1
-            ;;
-    esac
-}
-
-download_server() {
-    echo "Downloading MTA:SA Server.."
-    
-    wget -q "${BASE_URL}/multitheftauto_linux${ARCH_TYPE}.tar.gz" -O "multitheftauto_linux${ARCH_TYPE}.tar.gz" \
-    && tar -xzf "multitheftauto_linux${ARCH_TYPE}.tar.gz" \
-    && rm -f "multitheftauto_linux${ARCH_TYPE}.tar.gz" \
-    || { echo "Failed to download or extract MTA:SA Server"; exit 1; }
-}
 
 check_config() {
     echo "Checking config.."
@@ -52,7 +20,7 @@ check_config() {
     for file in shared-config/*; do
         if [ -f "${file}" ]; then
             fileName=$(basename "$file")
-            cp -f "${file}" "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/${fileName}"
+            cp -f "${file}" "server/mods/deathmatch/${fileName}"
         fi
     done
 }
@@ -63,22 +31,22 @@ link_modules() {
     if [ -d "shared-modules" ] && [ "$(ls -A shared-modules)" ]; then
         case "$ARCH" in
             "x86_64")
-                rm -rf "multitheftauto_linux${ARCH_TYPE}/x64/modules"
-                mkdir -p "multitheftauto_linux${ARCH_TYPE}/x64/modules"
-                cp -r shared-modules/* "multitheftauto_linux${ARCH_TYPE}/x64/modules"
+                rm -rf "server/x64/modules"
+                mkdir -p "server/x64/modules"
+                cp -r shared-modules/* "server/x64/modules"
                 ;;
             "aarch64")
-                rm -rf "multitheftauto_linux${ARCH_TYPE}/arm64/modules"
-                mkdir -p "multitheftauto_linux${ARCH_TYPE}/arm64/modules"
-                cp -r shared-modules/* "multitheftauto_linux${ARCH_TYPE}/arm64/modules"
+                rm -rf "server/arm64/modules"
+                mkdir -p "server/arm64/modules"
+                cp -r shared-modules/* "server/arm64/modules"
                 ;;
         esac
     fi
 }
 
 install_resources() {
-    if [ ! -L "${BASE_DIR}/multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/resources" ]; then
-        ln -s "${BASE_DIR}/shared-resources" "${BASE_DIR}/multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/resources"
+    if [ ! -L "${BASE_DIR}/server/mods/deathmatch/resources" ]; then
+        ln -s "${BASE_DIR}/shared-resources" "${BASE_DIR}/server/mods/deathmatch/resources"
     fi
 
     if [[ "${INSTALL_DEFAULT_RESOURCES,,}" != "false" ]]; then
@@ -98,10 +66,10 @@ install_resources() {
 setup_http_cache() {
     echo "Setting up HTTP cache.."
 
-    mkdir -p "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/resource-cache"
+    mkdir -p "server/mods/deathmatch/resource-cache"
 
-    if [ ! -L "${BASE_DIR}/multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/resource-cache/http-client-files" ]; then
-        ln -s "${BASE_DIR}/shared-http-cache" "${BASE_DIR}/multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/resource-cache/http-client-files"
+    if [ ! -L "${BASE_DIR}/server/mods/deathmatch/resource-cache/http-client-files" ]; then
+        ln -s "${BASE_DIR}/shared-http-cache" "${BASE_DIR}/server/mods/deathmatch/resource-cache/http-client-files"
     fi
 }
 
@@ -111,21 +79,19 @@ rollback_databases() {
     # Check if internal.db and registry.db files exist
     for file in internal.db registry.db; do
         if [ -f "shared-config/$file" ]; then
-            cp -f "shared-config/$file" "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/$file"
+            cp -f "shared-config/$file" "server/mods/deathmatch/$file"
         fi
     done
 
-    # Rollback 'databases' directory
+    # Rollback "databases" directory
     if [ -d "shared-databases/databases" ] && [ "$(ls -A shared-databases/databases)" ]; then
-        rm -rf "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/databases"
-        mkdir -p "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/databases"
-        cp -r shared-databases/databases/* "multitheftauto_linux${ARCH_TYPE}/mods/deathmatch/databases"
+        rm -rf "server/mods/deathmatch/databases"
+        mkdir -p "server/mods/deathmatch/databases"
+        cp -r shared-databases/databases/* "server/mods/deathmatch/databases"
     fi
 }
 
 main() {
-    get_architecture
-    download_server
     check_config
     link_modules
     install_resources

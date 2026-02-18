@@ -1,53 +1,45 @@
-FROM ubuntu:24.04
+FROM debian:trixie-slim
 
-LABEL org.opencontainers.image.source=https://github.com/Luminaire1337/mtasa-docker
-LABEL org.opencontainers.image.description="Unofficial MTA:SA Server Docker Image"
-LABEL org.opencontainers.image.licenses=GPL-3.0-only
+LABEL org.opencontainers.image.source=https://github.com/Luminaire1337/mtasa-docker \
+      org.opencontainers.image.description="Unofficial MTA:SA Server Docker Image" \
+      org.opencontainers.image.licenses=GPL-3.0-only
 
-# Install dependencies
-# Use noninteractive mode to avoid prompts during package installation
+# Install dependencies and libssl1.1 from Debian Bullseye
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt update && apt -y upgrade \
-	&& apt -y install libreadline-dev libncurses-dev libmysqlclient-dev unzip wget netcat-openbsd \
-	&& rm -rf /var/lib/apt/lists/*
+RUN echo "deb http://deb.debian.org/debian bullseye main" > /etc/apt/sources.list.d/bullseye.list \
+	&& printf "Package: *\nPin: release n=bullseye\nPin-Priority: 100\n" > /etc/apt/preferences.d/bullseye \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends ca-certificates libreadline8t64 libncursesw6 libmariadb3 wget netcat-openbsd \
+	&& apt-get install -y --no-install-recommends -t bullseye libssl1.1 \
+	&& rm /etc/apt/sources.list.d/bullseye.list /etc/apt/preferences.d/bullseye \
+	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /var/log/apt/* /var/log/dpkg.log
 
-# Download libssl1.1 library for different architectures
-RUN ARCH=$(dpkg --print-architecture) && \
-	if [ "$ARCH" = "amd64" ]; then \
-		wget -O /tmp/libssl1.1.deb https://launchpad.net/ubuntu/+archive/primary/+files/libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb; \
-	elif [ "$ARCH" = "arm64" ]; then \
-		wget -O /tmp/libssl1.1.deb https://launchpad.net/ubuntu/+archive/primary/+files/libssl1.1_1.1.1f-1ubuntu2.24_arm64.deb; \
-	fi && \
-	if [ -f /tmp/libssl1.1.deb ]; then \
-		dpkg -i /tmp/libssl1.1.deb && \
-		rm /tmp/libssl1.1.deb; \
-	fi
-
-# Set default permissions
-ARG DEFAULT_PERMISSIONS=755
-
-# Use built-in user to Ubuntu images
-ARG USER_NAME=ubuntu
-ARG GROUP_NAME=${USER_NAME}
+# Create a non-root user
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g ${GID} mtasa && useradd -u ${UID} -g mtasa -s /usr/sbin/nologin -M mtasa
 
 # Set the working directory
 WORKDIR /src
 
 # Create directories for volumes and set permissions
-RUN mkdir -p /src/shared-config \
-	&& mkdir -p /src/shared-modules \
-	&& mkdir -p /src/shared-resources \
-	&& mkdir -p /src/shared-http-cache \
-	&& mkdir -p /src/shared-databases \
-	&& chown -R ${USER_NAME}:${GROUP_NAME} /src \
-	&& chmod -R ${DEFAULT_PERMISSIONS} /src
+RUN mkdir -p /src/{shared-config,shared-modules,shared-resources,shared-http-cache,shared-databases} \
+	&& chown -R mtasa:mtasa /src
 
 # Copy over entrypoint and run scripts and change their permissions
-COPY --chown=${USER_NAME}:${GROUP_NAME} --chmod=${DEFAULT_PERMISSIONS} ./entrypoint.sh /src/entrypoint.sh
-COPY --chown=${USER_NAME}:${GROUP_NAME} --chmod=${DEFAULT_PERMISSIONS} ./run.sh /src/run.sh
+COPY --chown=mtasa:mtasa --chmod=750 ./entrypoint.sh /src/entrypoint.sh
+COPY --chown=mtasa:mtasa --chmod=750 ./run.sh /src/run.sh
 
 # Change to the non-root user
-USER ${USER_NAME}
+USER mtasa
+
+# Download latest MTA:SA server
+RUN ARCH=$(dpkg --print-architecture) && \
+	ARCH_TYPE=$(if [ "$ARCH" = "amd64" ]; then echo "x64"; else echo "arm64"; fi) && \
+	wget -q https://linux.multitheftauto.com/dl/multitheftauto_linux_${ARCH_TYPE}.tar.gz -O /tmp/mtasa.tar.gz && \
+	tar -xzf /tmp/mtasa.tar.gz -C /src && \
+	mv /src/multitheftauto_linux* /src/server && \
+	rm /tmp/mtasa.tar.gz
 
 # Expose ports
 EXPOSE 22003/udp 22005/tcp 22126/udp
