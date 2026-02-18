@@ -34,6 +34,12 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Detected MTA:SA Server version: ${VERSION}"
 
+      - name: Lowercase image names
+        id: image
+        run: |
+          echo "ghcr=${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME_GHCR }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_OUTPUT
+          echo "dockerhub=${{ env.REGISTRY_DOCKERHUB }}/${{ env.IMAGE_NAME_DOCKERHUB }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_OUTPUT
+
       - name: Check if image already exists on GHCR
         id: check
         if: ${{ !inputs.force }}
@@ -73,7 +79,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME_GHCR }}:${{ steps.version.outputs.version }}
-            ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME_GHCR }}:latest
-            ${{ env.REGISTRY_DOCKERHUB }}/${{ env.IMAGE_NAME_DOCKERHUB }}:${{ steps.version.outputs.version }}
-            ${{ env.REGISTRY_DOCKERHUB }}/${{ env.IMAGE_NAME_DOCKERHUB }}:latest
+            ${{ steps.image.outputs.ghcr }}:${{ steps.version.outputs.version }}
+            ${{ steps.image.outputs.ghcr }}:latest
+            ${{ steps.image.outputs.dockerhub }}:${{ steps.version.outputs.version }}
+            ${{ steps.image.outputs.dockerhub }}:latest
