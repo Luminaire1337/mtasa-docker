@@ -40,11 +40,11 @@ jobs:
           echo "ghcr=${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME_GHCR }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_OUTPUT
           echo "dockerhub=${{ env.REGISTRY_DOCKERHUB }}/${{ env.IMAGE_NAME_DOCKERHUB }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_OUTPUT
 
-      - name: Check if image already exists on GHCR
+      - name: Check if image already exists on Docker Hub
         id: check
         if: ${{ !inputs.force }}
         run: |
-          docker manifest inspect ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME_GHCR }}:${{ steps.version.outputs.version }} > /dev/null 2>&1 \
+          docker manifest inspect ${{ steps.image.outputs.dockerhub }}:${{ steps.version.outputs.version }} > /dev/null 2>&1 \
             && echo "exists=true" >> $GITHUB_OUTPUT \
             || echo "exists=false" >> $GITHUB_OUTPUT
 
