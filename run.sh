@@ -57,7 +57,7 @@ main() {
     get_executable_name
     
     echo "Starting MTA:SA Server.."
-    "server/${EXECUTABLE_NAME}" -t -n -u &
+    "server/${EXECUTABLE_NAME}" -n -u &
     wait $!
 }
 
