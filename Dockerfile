@@ -23,7 +23,11 @@ RUN groupadd -g ${GID} mtasa && useradd -u ${UID} -g mtasa -s /usr/sbin/nologin 
 WORKDIR /src
 
 # Create directories for volumes and set permissions
-RUN mkdir -p /src/{shared-config,shared-modules,shared-resources,shared-http-cache,shared-databases} \
+RUN mkdir -p /src/shared-config \
+	&& mkdir -p /src/shared-modules \
+	&& mkdir -p /src/shared-resources \
+	&& mkdir -p /src/shared-http-cache \
+	&& mkdir -p /src/shared-databases \
 	&& chown -R mtasa:mtasa /src
 
 # Copy over entrypoint and run scripts and change their permissions
