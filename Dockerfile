@@ -9,7 +9,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN echo "deb http://deb.debian.org/debian bullseye main" > /etc/apt/sources.list.d/bullseye.list \
 	&& printf "Package: *\nPin: release n=bullseye\nPin-Priority: 100\n" > /etc/apt/preferences.d/bullseye \
 	&& apt-get update \
-	&& apt-get install -y --no-install-recommends ca-certificates libreadline8t64 libncursesw6 libmariadb3 wget netcat-openbsd \
+	&& apt-get install -y --no-install-recommends ca-certificates libncursesw6 wget netcat-openbsd \
 	&& apt-get install -y --no-install-recommends -t bullseye libssl1.1 \
 	&& rm /etc/apt/sources.list.d/bullseye.list /etc/apt/preferences.d/bullseye \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /var/log/apt/* /var/log/dpkg.log
