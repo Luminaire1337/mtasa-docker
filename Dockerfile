@@ -4,14 +4,14 @@ LABEL org.opencontainers.image.source=https://github.com/Luminaire1337/mtasa-doc
       org.opencontainers.image.description="Unofficial MTA:SA Server Docker Image" \
       org.opencontainers.image.licenses=GPL-3.0-only
 
-# Install dependencies and libssl1.1 from Debian Bullseye
+# Install dependencies
 ARG DEBIAN_FRONTEND=noninteractive
-RUN echo "deb http://deb.debian.org/debian bullseye main" > /etc/apt/sources.list.d/bullseye.list \
-	&& printf "Package: *\nPin: release n=bullseye\nPin-Priority: 100\n" > /etc/apt/preferences.d/bullseye \
+RUN echo "deb http://deb.debian.org/debian sid main" > /etc/apt/sources.list.d/sid.list \
+	&& printf "Package: *\nPin: release n=sid\nPin-Priority: 100\n" > /etc/apt/preferences.d/sid \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends ca-certificates libncursesw6 wget netcat-openbsd \
-	&& apt-get install -y --no-install-recommends -t bullseye libssl1.1 \
-	&& rm /etc/apt/sources.list.d/bullseye.list /etc/apt/preferences.d/bullseye \
+	&& apt-get install -y --no-install-recommends -t sid libmysqlclient21 \
+	&& rm /etc/apt/sources.list.d/sid.list /etc/apt/preferences.d/sid \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /var/log/apt/* /var/log/dpkg.log
 
 # Create a non-root user
@@ -40,7 +40,8 @@ USER mtasa
 # Download latest MTA:SA server
 RUN ARCH=$(dpkg --print-architecture) && \
 	ARCH_TYPE=$(if [ "$ARCH" = "amd64" ]; then echo "x64"; else echo "arm64"; fi) && \
-	wget -q https://linux.multitheftauto.com/dl/multitheftauto_linux_${ARCH_TYPE}.tar.gz -O /tmp/mtasa.tar.gz && \
+	# TODO: Once v1.7 is released, change the URL to point to the stable release instead of the nightly build
+	wget -q https://nightly.multitheftauto.com/multitheftauto_linux_${ARCH_TYPE}-1.7.0-untested-26212.tar.gz -O /tmp/mtasa.tar.gz && \
 	tar -xzf /tmp/mtasa.tar.gz -C /src && \
 	mv /src/multitheftauto_linux* /src/server && \
 	rm /tmp/mtasa.tar.gz
