@@ -30,7 +30,7 @@ jobs:
       - name: Get latest MTA:SA Server version
         id: version
         run: |
-          VERSION=$(curl -s https://linux.multitheftauto.com/revision/latest.txt | sed 's/MTA:SA Server //')
+          VERSION=$(curl -s https://linux.multitheftauto.com/revision/1.6.txt | sed 's/MTA:SA Server //')
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Detected MTA:SA Server version: ${VERSION}"
 
