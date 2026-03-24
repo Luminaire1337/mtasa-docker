@@ -51,7 +51,7 @@ EXPOSE 22003/udp 22005/tcp 22126/udp
 # Expose volumes for shared data
 VOLUME ["/src/shared-config", "/src/shared-modules", "/src/shared-resources", "/src/shared-http-cache", "/src/shared-databases"]
 
-# Add healtcheck
+# Add healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 	CMD nc -z -u 127.0.0.1 22003 || exit 1
 
