@@ -31,6 +31,14 @@ jobs:
           echo "ghcr=${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME_GHCR }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_OUTPUT
           echo "dockerhub=${{ env.REGISTRY_DOCKERHUB }}/${{ env.IMAGE_NAME_DOCKERHUB }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_OUTPUT
 
+      - name: Normalize public version tag
+        id: version
+        run: |
+          raw_version='${{ inputs.version }}'
+          normalized_version="v${raw_version#v}"
+          normalized_version="${normalized_version%.*}"
+          echo "public=${normalized_version}" >> $GITHUB_OUTPUT
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -59,5 +67,5 @@ jobs:
           build-args: |
             VERSION=${{ inputs.version }}
           tags: |
-            ${{ steps.image.outputs.ghcr }}:${{ inputs.version }}
-            ${{ steps.image.outputs.dockerhub }}:${{ inputs.version }}
+            ${{ steps.image.outputs.ghcr }}:${{ steps.version.outputs.public }}
+            ${{ steps.image.outputs.dockerhub }}:${{ steps.version.outputs.public }}
