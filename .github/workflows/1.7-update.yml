@@ -35,8 +35,7 @@ jobs:
         id: version
         run: |
           raw_version='${{ inputs.version }}'
-          normalized_version="v${raw_version#v}"
-          normalized_version="${normalized_version%.*}"
+          normalized_version="$(printf '%s' "$raw_version" | sed -E 's/^v?([0-9]+\.[0-9]+)\.0(.*)$/v\1\2/')"
           echo "public=${normalized_version}" >> $GITHUB_OUTPUT
 
       - name: Login to GitHub Container Registry
