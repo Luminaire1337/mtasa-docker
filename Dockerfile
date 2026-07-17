@@ -9,8 +9,12 @@ ARG VERSION=1.7.0-untested-26702
 
 # Install dependencies
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt update \
-	&& apt install -y --no-install-recommends ca-certificates libncursesw6 wget netcat-openbsd unzip \
+RUN echo "deb http://deb.debian.org/debian sid main" > /etc/apt/sources.list.d/sid.list \
+	&& printf "Package: *\nPin: release n=sid\nPin-Priority: 100\n" > /etc/apt/preferences.d/sid \
+	&& apt update \
+	&& apt install -y --no-install-recommends ca-certificates libncursesw6 wget netcat-openbsd \
+	&& apt install -y --no-install-recommends -t sid libmysqlclient21 \
+	&& rm /etc/apt/sources.list.d/sid.list /etc/apt/preferences.d/sid \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /var/log/apt/* /var/log/dpkg.log
 
 # Create a non-root user
