@@ -5,7 +5,7 @@ LABEL org.opencontainers.image.source=https://github.com/Luminaire1337/mtasa-doc
       org.opencontainers.image.licenses=GPL-3.0-only
 
 # Manual binary version injected by GitHub Actions workflow
-ARG VERSION=1.7.0-untested-26702
+ARG VERSION=1.7.0-untested-26734
 
 # Install dependencies
 ARG DEBIAN_FRONTEND=noninteractive
