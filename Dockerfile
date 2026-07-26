@@ -1,4 +1,5 @@
-FROM debian:trixie-slim
+# Need to use Ubuntu Noble because MTA:SA server requires libmysqlclient21 which is not available in Ubuntu Resolute or Debian Sid
+FROM ubuntu:noble
 
 LABEL org.opencontainers.image.source=https://github.com/Luminaire1337/mtasa-docker \
       org.opencontainers.image.description="Unofficial MTA:SA Server Docker Image" \
@@ -9,18 +10,9 @@ ARG VERSION=1.7.0-untested-26734
 
 # Install dependencies
 ARG DEBIAN_FRONTEND=noninteractive
-RUN echo "deb http://deb.debian.org/debian sid main" > /etc/apt/sources.list.d/sid.list \
-	&& printf "Package: *\nPin: release n=sid\nPin-Priority: 100\n" > /etc/apt/preferences.d/sid \
-	&& apt update \
-	&& apt install -y --no-install-recommends ca-certificates libncursesw6 wget netcat-openbsd \
-	&& apt install -y --no-install-recommends -t sid libmysqlclient21 \
-	&& rm /etc/apt/sources.list.d/sid.list /etc/apt/preferences.d/sid \
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends libncursesw6 ca-certificates wget unzip netcat-openbsd libmysqlclient21 \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /var/log/apt/* /var/log/dpkg.log
-
-# Create a non-root user
-ARG UID=1000
-ARG GID=1000
-RUN groupadd -g ${GID} mtasa && useradd -u ${UID} -g mtasa -s /usr/sbin/nologin -M mtasa
 
 # Set the working directory
 WORKDIR /src
@@ -31,23 +23,23 @@ RUN mkdir -p /src/shared-config \
 	&& mkdir -p /src/shared-resources \
 	&& mkdir -p /src/shared-http-cache \
 	&& mkdir -p /src/shared-databases \
-	&& chown -R mtasa:mtasa /src
+	&& chown -R ubuntu:ubuntu /src
 
 # Copy over entrypoint and run scripts and change their permissions
-COPY --chown=mtasa:mtasa --chmod=750 ./entrypoint.sh /src/entrypoint.sh
-COPY --chown=mtasa:mtasa --chmod=750 ./run.sh /src/run.sh
+COPY --chown=ubuntu:ubuntu --chmod=750 ./entrypoint.sh /src/entrypoint.sh
+COPY --chown=ubuntu:ubuntu --chmod=750 ./run.sh /src/run.sh
 
 # Change to the non-root user
-USER mtasa
+USER ubuntu
 
 # Download latest MTA:SA server
-RUN ARCH=$(dpkg --print-architecture) && \
-	ARCH_TYPE=$(if [ "$ARCH" = "amd64" ]; then echo "x64"; else echo "arm64"; fi) && \
+RUN ARCH=$(dpkg --print-architecture) \
+    && ARCH_TYPE=$(if [ "$ARCH" = "amd64" ]; then echo "x64"; else echo "arm64"; fi) \
 	# Temporary nightly build download until the official release is available
-	wget -q https://nightly.multitheftauto.com/multitheftauto_linux_${ARCH_TYPE}-${VERSION}.tar.gz -O /tmp/mtasa.tar.gz && \
-	tar -xzf /tmp/mtasa.tar.gz -C /src && \
-	mv /src/multitheftauto_linux* /src/server && \
-	rm /tmp/mtasa.tar.gz
+	&& wget -q https://nightly.multitheftauto.com/multitheftauto_linux_${ARCH_TYPE}-${VERSION}.tar.gz -O /tmp/mtasa.tar.gz \
+	&& tar -xzf /tmp/mtasa.tar.gz -C /src \
+	&& mv /src/multitheftauto_linux* /src/server \
+	&& rm /tmp/mtasa.tar.gz
 
 # Expose ports
 EXPOSE 22003/udp 22005/tcp 22126/udp
