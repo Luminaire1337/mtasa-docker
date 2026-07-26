@@ -46,9 +46,8 @@ You can also use Docker Compose to run the container. Here's an example `docker-
 
 ```yaml
 services:
-  mtasa:
+  server:
     image: ghcr.io/luminaire1337/mtasa-docker:latest
-    container_name: mtasa
     restart: unless-stopped
     volumes:
       - ./config:/src/shared-config
@@ -66,12 +65,10 @@ services:
   # Optional: HTTP cache server
   # https://wiki.multitheftauto.com/wiki/Installing_and_Configuring_Nginx_as_an_External_Web_Server
   http-cache:
-    image: nginx:alpine
-    container_name: mtasa-http-cache
+    image: nginx:mainline
     restart: unless-stopped
     volumes:
       - ./http-cache:/usr/share/nginx/html
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "20080:20080/tcp"
